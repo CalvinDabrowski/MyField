@@ -1,15 +1,30 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-05-28.basil',
-});
+const stripeSecret = process.env.STRIPE_SECRET_KEY;
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+if (!stripeSecret || !webhookSecret) {
+  console.warn("⚠️ Missing STRIPE_SECRET_KEY or STRIPE_WEBHOOK_SECRET. Stripe webhook disabled.");
+}
+
+const stripe = stripeSecret
+  ? new Stripe(stripeSecret, {
+      apiVersion: '2025-05-28.basil',
+    })
+  : null;
 
 export async function POST(req: NextRequest) {
+  if (!stripe || !webhookSecret) {
+    return NextResponse.json({ error: 'Stripe webhook not configured' }, { status: 500 });
+  }
+
   const body = await req.text();
-  const signature = req.headers.get('stripe-signature')!;
+  const signature = req.headers.get('stripe-signature');
+
+  if (!signature) {
+    return NextResponse.json({ error: 'Missing Stripe signature' }, { status: 400 });
+  }
 
   let event: Stripe.Event;
 
@@ -21,87 +36,58 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // Handle different webhook events
-    if (event.type === 'checkout.session.completed') {
-      const session = event.data.object as Stripe.Checkout.Session;
-      console.log('Checkout session completed:', session.id);
-      
-      // Handle successful payment/subscription creation
-      if (session.mode === 'subscription' && session.subscription) {
-        const subscription = await stripe.subscriptions.retrieve(
-          session.subscription as string
-        );
-        console.log('Subscription created:', subscription.id);
-        
-        // TODO: Update user subscription status in database
-        // await updateUserSubscription(session.customer, subscription);
-      }
-    } else if (event.type === 'customer.subscription.created') {
-      const subscription = event.data.object as Stripe.Subscription;
-      console.log('Subscription created:', subscription.id);
-      
-      // TODO: Update user subscription status in database
-      // await updateUserSubscription(subscription.customer, subscription);
-    } else if (event.type === 'customer.subscription.updated') {
-      const subscription = event.data.object as Stripe.Subscription;
-      console.log('Subscription updated:', subscription.id);
-      
-      // TODO: Update user subscription status in database
-      // await updateUserSubscription(subscription.customer, subscription);
-    } else if (event.type === 'customer.subscription.deleted') {
-      const subscription = event.data.object as Stripe.Subscription;
-      console.log('Subscription cancelled:', subscription.id);
-      
-      // TODO: Update user subscription status in database
-      // await cancelUserSubscription(subscription.customer, subscription);
-    } else if (event.type === 'invoice.payment_succeeded') {
-      const invoice = event.data.object as Stripe.Invoice;
-      console.log('Payment succeeded for invoice:', invoice.id);
-      
-      // TODO: Handle invoice payment success
-      // const subscriptionId = (invoice as any).subscription;
-      // if (subscriptionId && typeof subscriptionId === 'string') {
-      //   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-      //   console.log('Subscription payment succeeded:', subscription.id);
-      //   await updateUserSubscription(subscription.customer, subscription);
-      // }
-    } else if (event.type === 'invoice.payment_failed') {
-      const invoice = event.data.object as Stripe.Invoice;
-      console.log('Payment failed for invoice:', invoice.id);
-      
-      // TODO: Handle invoice payment failure
-      // const subscriptionId = (invoice as any).subscription;
-      // if (subscriptionId && typeof subscriptionId === 'string') {
-      //   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-      //   console.log('Subscription payment failed:', subscription.id);
-      //   await handleFailedPayment(subscription.customer, subscription);
-      // }
-    } else {
-      console.log(`Unhandled event type: ${event.type}`);
+    switch (event.type) {
+      case 'checkout.session.completed':
+        const session = event.data.object as Stripe.Checkout.Session;
+        console.log('Checkout session completed:', session.id);
+
+        if (session.mode === 'subscription' && session.subscription) {
+          const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+          console.log('Subscription created:', subscription.id);
+          await updateUserSubscription(session.customer, subscription);
+        }
+        break;
+
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated':
+        const subCreatedOrUpdated = event.data.object as Stripe.Subscription;
+        console.log(`Subscription ${event.type}:`, subCreatedOrUpdated.id);
+        await updateUserSubscription(subCreatedOrUpdated.customer, subCreatedOrUpdated);
+        break;
+
+      case 'customer.subscription.deleted':
+        const subDeleted = event.data.object as Stripe.Subscription;
+        console.log('Subscription cancelled:', subDeleted.id);
+        await cancelUserSubscription(subDeleted.customer, subDeleted);
+        break;
+
+      case 'invoice.payment_succeeded':
+        const invoicePaid = event.data.object as Stripe.Invoice;
+        console.log('Payment succeeded for invoice:', invoicePaid.id);
+        break;
+
+      case 'invoice.payment_failed':
+        const invoiceFailed = event.data.object as Stripe.Invoice;
+        console.log('Payment failed for invoice:', invoiceFailed.id);
+        break;
+
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
+        break;
     }
 
     return NextResponse.json({ received: true });
   } catch (error: unknown) {
     console.error('Webhook handler error:', error);
-    return NextResponse.json(
-      { error: 'Webhook handler failed' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Webhook handler failed' }, { status: 500 });
   }
 }
 
-// Helper functions that would integrate with your user database
+// Placeholder helper functions
 async function updateUserSubscription(customerId: string | Stripe.Customer | null, subscription: Stripe.Subscription) {
-  // TODO: Implement database update logic
   console.log('Update user subscription:', customerId, subscription.id);
 }
 
 async function cancelUserSubscription(customerId: string | Stripe.Customer | null, subscription: Stripe.Subscription) {
-  // TODO: Implement database update logic
   console.log('Cancel user subscription:', customerId, subscription.id);
-}
-
-async function handleFailedPayment(customerId: string | Stripe.Customer | null, subscription: Stripe.Subscription) {
-  // TODO: Implement failed payment handling (e.g., send email, downgrade plan)
-  console.log('Handle failed payment:', customerId, subscription.id);
 }
