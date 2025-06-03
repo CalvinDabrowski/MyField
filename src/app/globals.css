@@ -1,0 +1,360 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-plus-jakarta-sans: 'Plus Jakarta Sans', sans-serif;
+
+  /* NexField Brand Colors */
+  --color-primary: #3C3F41;        /* Slate Gray */
+  --color-secondary: #2E8B57;      /* Emerald Green */
+  --color-background: #FAFAFA;     /* Ivory White */
+  --color-accent: #87CEEB;         /* Sky Blue */
+  --color-text: #3C3F41;           /* Slate Gray for text */
+
+  /* Gradient colors - using brand colors */
+  --gradient-from: #2E8B57;        /* Emerald Green */
+  --gradient-to: #87CEEB;          /* Sky Blue */
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  line-height: 1.6;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+/* Fix mobile viewport overflow */
+html {
+  overflow-x: hidden;
+}
+
+/* Ensure all containers respect viewport width */
+* {
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
+.gradient-hero {
+  background: linear-gradient(135deg, var(--gradient-from) 0%, var(--gradient-to) 100%);
+}
+
+.text-shadow {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Hover animations */
+.hover-lift {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.hover-scale {
+  transition: transform 0.2s ease-in-out;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* Fix dropdown clipping issues */
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
+
+[data-radix-select-content] {
+  z-index: 9999 !important;
+  background: white !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 6px !important;
+  box-shadow: 0 10px 38px -10px rgba(22, 23, 24, 0.35), 0 10px 20px -15px rgba(22, 23, 24, 0.2) !important;
+  overflow: hidden !important;
+  max-height: 200px !important;
+}
+
+[data-radix-select-viewport] {
+  padding: 4px !important;
+}
+
+[data-radix-select-item] {
+  background: white !important;
+  color: #1f2937 !important;
+  padding: 8px 12px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+[data-radix-select-item]:hover {
+  background: #2E8B57 !important;
+  color: white !important;
+  outline: none !important;
+  transform: translateX(2px) !important;
+}
+
+[data-radix-select-item][data-highlighted] {
+  background: #2E8B57 !important;
+  color: white !important;
+  outline: none !important;
+  transform: translateX(2px) !important;
+}
+
+[data-radix-select-item]:focus {
+  background: #2E8B57 !important;
+  color: white !important;
+  outline: none !important;
+}
+
+/* Ensure cards don't clip dropdowns */
+.card-container {
+  overflow: visible !important;
+}
+
+/* Specific form card fixes */
+.signup-form-card {
+  overflow: visible !important;
+  position: relative !important;
+}
+
+.signup-form-card .card-content {
+  overflow: visible !important;
+}
+
+/* Pipeline loading animation */
+@keyframes fillPipeline {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+.pipeline-loader {
+  width: 200px;
+  height: 20px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    transparent 40%,
+    #2E8B57 40%,
+    #87CEEB 60%,
+    transparent 60%,
+    transparent 100%);
+  background-size: 200% 100%;
+  animation: fillPipeline 2s ease-in-out infinite;
+  border: 2px solid #3C3F41;
+  border-radius: 10px;
+  position: relative;
+}
+
+/* Gradient background animation for search bar */
+@keyframes gradient-x {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient-x {
+  animation: gradient-x 6s ease infinite;
+}
+
+/* ========================================
+   FUTURISTIC UI COMPONENTS - 2030 DESIGN
+   ======================================== */
+
+/* Navigation Styles */
+.nav-link {
+  @apply relative px-4 py-2 text-sm font-medium text-nexfield-slate transition-all duration-300 rounded-xl hover:bg-gradient-to-r hover:from-nexfield-emerald/10 hover:to-nexfield-sky/10 hover:text-nexfield-emerald;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 80%;
+  height: 2px;
+  background: linear-gradient(90deg, #2E8B57, #87CEEB);
+  border-radius: 2px;
+  transition: transform 0.3s ease;
+}
+
+.nav-link:hover::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+.nav-link-dropdown {
+  @apply relative px-4 py-2 text-sm font-medium text-nexfield-slate transition-all duration-300 rounded-xl hover:bg-gradient-to-r hover:from-nexfield-emerald/10 hover:to-nexfield-sky/10 hover:text-nexfield-emerald flex items-center;
+}
+
+/* Futuristic Dropdown */
+.futuristic-dropdown {
+  @apply bg-white/95 backdrop-blur-xl shadow-2xl border border-gray-200/50 rounded-2xl min-w-[280px] p-0 overflow-hidden;
+  animation: dropdownSlide 0.3s ease-out;
+}
+
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dropdown-section-title {
+  @apply text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2;
+}
+
+.dropdown-item {
+  @apply relative overflow-hidden rounded-xl mx-1 transition-all duration-200 hover:bg-gradient-to-r hover:from-nexfield-emerald/5 hover:to-nexfield-sky/5;
+}
+
+.dropdown-link {
+  @apply w-full p-3 text-nexfield-slate hover:text-nexfield-emerald transition-colors duration-200;
+}
+
+/* Mobile Navigation */
+.mobile-nav-item {
+  @apply block w-full text-left px-3 py-3 text-base font-medium text-nexfield-slate rounded-xl transition-all duration-300 hover:bg-gradient-to-r hover:from-nexfield-emerald/10 hover:to-nexfield-sky/10 hover:text-nexfield-emerald hover:pl-5;
+}
+
+.mobile-nav-subitem {
+  @apply block w-full text-left px-6 py-2 text-sm text-gray-600 rounded-lg transition-all duration-300 hover:bg-nexfield-emerald/5 hover:text-nexfield-emerald hover:pl-8;
+}
+
+/* Enhanced Animations */
+.btn-futuristic {
+  @apply relative overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl;
+}
+
+.btn-futuristic::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-futuristic:hover::before {
+  left: 100%;
+}
+
+/* Page Transitions */
+.page-transition {
+  animation: pageSlideIn 0.5s ease-out;
+}
+
+@keyframes pageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Floating Animation */
+.float-animation {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Modern Effects */
+.gradient-text {
+  @apply bg-gradient-to-r from-nexfield-emerald to-nexfield-sky bg-clip-text text-transparent;
+}
+
+.glass-card {
+  @apply bg-white/80 backdrop-blur-xl border border-white/20 shadow-xl;
+}
+
+.pulse-dot {
+  animation: pulseDot 2s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+}
+
+/* Micro-interactions */
+.micro-bounce {
+  transition: transform 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.micro-bounce:hover {
+  transform: scale(1.05);
+}
+
+.micro-bounce:active {
+  transform: scale(0.95);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus states for accessibility */
+.focus-ring:focus {
+  @apply outline-none ring-2 ring-nexfield-emerald/50 ring-offset-2;
+}
+
+/* Modern card hover effects */
+.card-modern {
+  @apply transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 hover:scale-[1.02];
+}
+
+.card-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent, rgba(46, 139, 87, 0.05), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.card-modern:hover::before {
+  opacity: 1;
+}
