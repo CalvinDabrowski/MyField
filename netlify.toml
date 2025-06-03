@@ -12,6 +12,3 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
-  [plugins.inputs]
-    enableTypeCheck = false
-    enableEsLint = false
