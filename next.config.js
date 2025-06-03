@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // 🚨 Add this line:
+  output: 'standalone',
+
   // Force build to ignore all TypeScript and ESLint errors
   typescript: {
     ignoreBuildErrors: true,
